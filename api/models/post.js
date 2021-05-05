@@ -9,17 +9,25 @@ const postSchema = new mongoose.Schema({
     },
     description: {
         type: String,
-        required: true
+        required: false,
+        default: false
     },
     date: {
         type: Date,
-        required: true,
         default: Date.now
     },
-    picture: {
+    imageUrl: {
         type: String,
         required: true
     },
+    permission: {
+        type: String,
+        required: true
+    },
+    likes: {
+        type: Number,
+        default: 0
+    }
 },
 {
     collection: 'Posts'

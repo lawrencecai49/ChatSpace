@@ -3,7 +3,11 @@
 const mongoose = require('mongoose');
 
 const commentSchema = new mongoose.Schema({
-    username: {
+    authour: {
+        type: String,
+        required: true
+    },
+    post:{
         type: String,
         required: true
     },
@@ -11,6 +15,11 @@ const commentSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    date: {
+        type: Date,
+        required: false,
+        default: Date.now()
+    }
 },
 {
     collection: 'Comments'

@@ -3,7 +3,7 @@
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
-    username: {
+    _id: {
         type: String,
         required: true
     },
@@ -15,7 +15,11 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    friends: {
+    followers: {
+        type: Array,
+        required: true
+    },
+    following: {
         type: Array,
         required: true
     },
