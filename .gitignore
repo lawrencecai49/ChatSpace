@@ -4,7 +4,7 @@
 # dependencies
 /chatroom/node_modules
 /chatroom/.pnp
-/chatroom.pnp.js
+/chatroom/.pnp.js
 
 # testing
 /chatroom/coverage
