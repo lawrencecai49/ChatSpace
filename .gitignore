@@ -1,1 +1,24 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 /api/.env
+
+# dependencies
+/chatroom/node_modules
+/chatroom/.pnp
+/chatroom.pnp.js
+
+# testing
+/chatroom/coverage
+
+# production
+/chatroom/build
+
+# misc
+/chatroom/.DS_Store
+/chatroom/.env.local
+/chatroom/.env.development.local
+/chatroom/.env.test.local
+/chatroom/.env.production.local
+
+/chatroom/npm-debug.log*
+/chatroom/yarn-debug.log*
+/chatroom/yarn-error.log*

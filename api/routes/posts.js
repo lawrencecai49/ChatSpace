@@ -28,10 +28,15 @@ router.post('/', isAuthenticated, async(req, res) => {
   
 //delete a post
 router.delete('/:postId', isAuthenticated, (req, res) => {
+  Post.findById(req.params.postId, (err, post) => {
+    if (err) return res.status(500).end("Error occurred while deleting post");
+    if(!post) return res.status(400).end("Could not find comment to delete");
+    if (post.authour !== req.user._id) return res.status(401).end("Access denied: Posts can only be deleted by user who posted it");
+  });
   Post.findByIdAndDelete(req.params.postId, (err, post) => {
     if (err) return res.status(500).end("Error occurred when deleting post");
     if (!post) return res.status(400).end("Could not find post");
-    if (post.authour != req.user._id) return res.status(401).end("Access denied: You do not own the post");
+    if (post.authour !== req.user._id) return res.status(401).end("Access denied: You do not own the post");
     Comment.deleteMany({post: post._id});
     return res.json("Post sucessfully deleted");
   });
@@ -42,7 +47,7 @@ router.get('/', (req, res) => {
   Post.find({}, (err, posts) => {
     if (err) return res.status(500).end("Error occured when retrieving posts");
     return res.json(posts);
-  });
+  }).sort({date: -1}).limit(10);
 });
 
 module.exports = router;

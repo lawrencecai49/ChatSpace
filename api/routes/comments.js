@@ -2,7 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const Comment = require('../models/comment');
-const Posts = require('../models/post');
+const Post = require('../models/post');
 
 const isAuthenticated = (req, res, next) => {
   if (!req.isAuthenticated()) return res.status(401).end("access denied");
@@ -48,7 +48,7 @@ router.get('/:postId', isAuthenticated, (req, res) => {
   Comment.find({post: req.params.postId}, (err, comments) => {
     if (err) return res.status(500).end("Error occurred while retrieving comments");
     return res.json(comments);
-  });
+  }).sort({date: -1});
 });
 
 module.exports = router;
