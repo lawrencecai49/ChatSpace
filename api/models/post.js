@@ -3,14 +3,14 @@
 const mongoose = require('mongoose');
 
 const postSchema = new mongoose.Schema({
-    username: {
+    authour: {
         type: String,
         required: true
     },
     description: {
         type: String,
         required: false,
-        default: false
+        default: ""
     },
     date: {
         type: Date,
@@ -20,8 +20,8 @@ const postSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    permission: {
-        type: String,
+    public: {
+        type: Boolean,
         required: true
     },
     likes: {

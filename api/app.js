@@ -15,12 +15,6 @@ const User = require('./models/user');
 const crypto = require('crypto');
 require('dotenv/config');
 
-const initializePassport = require('./passport-config');
-initializePassport(
-  passport, 
-  username => User.findById(username, (err, user) => {return user;})
-);
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(bodyParser.urlencoded({extended: true}));
@@ -38,12 +32,16 @@ app.use(session({
   cookie: {maxAge: 60 * 60 * 24 * 7}
 }));
 
-app.use((req, res, next) => {
-  let username = (req.session.user)? req.session.user._id : '';
-  console.log("Username: ", username);
+app.use(passport.initialize());
+app.use(passport.session());
+const initializePassport = require('./passport-config');
+initializePassport(passport);
+
+app.use(function(req, res, next){
+  let username = (req.user)? req.user._id : '';
   res.setHeader('Set-Cookie', cookie.serialize('username', username, {
     path : '/', 
-    maxAge: 60 * 60 * 24 * 7
+    maxAge: 60 * 60 * 24 * 7 // 1 week in number of seconds
   }));
   next();
 });
@@ -51,9 +49,6 @@ app.use((req, res, next) => {
 if (app.get('env') === 'production') {
   session.cookie.secure = true;
 }
-
-app.use(passport.initialize());
-app.use(passport.session());
 
 app.use(cors({ 
   origin: 'http://localhost:3000',
@@ -114,14 +109,21 @@ app.post('/signup', isAuthenticated, checkSignInInfo,  async(req, res) => {
 });
 
 //signin
-app.post('/signin', checkSignInInfo, passport.authenticate('local'), (req, res) => {
-  console.log("In sign in: " , req.isAuthenticated(), " User is:", req.user._id);
+app.post('/signin', isAuthenticated ,checkSignInInfo, passport.authenticate('local'), (req, res) => {
+  res.setHeader('Set-Cookie', cookie.serialize('username', req.user._id, {
+    path : '/', 
+    maxAge: 60 * 60 * 24 * 7 // 1 week in number of seconds
+  }));
   return res.json(true);
 });
 
 //signout
 app.get('/signout', isNotAuthenticated, (req, res) => {
   req.logout();
+  res.setHeader('Set-Cookie', cookie.serialize('username', '', {
+    path : '/', 
+    maxAge: 60 * 60 * 24 * 7 // 1 week in number of seconds
+  }));
   res.json("Successfully signed out");
 });
 

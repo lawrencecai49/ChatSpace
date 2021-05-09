@@ -2,6 +2,7 @@
 
 const LocalStrategy = require('passport-local').Strategy;
 const crypto = require('crypto');
+const User = require('./models/user');
   
 const getHash = (password, salt) => {
     try{
@@ -13,26 +14,31 @@ const getHash = (password, salt) => {
     }
 };
 
-const initialize = (passport, getUser) => {
+const initialize = (passport) => {
     const authenticateUser = async (username, password, done) => {
-        const user = await getUser(username);
-        if(!user){
-            return done(null, false, 'Incorrect username');
-        }
-        try{
-            let hashedword = getHash(password, user.salt);
-            if(hashedword === user.password){
-                return done(null, user);
-            } else {
-                return done(null, false, 'Incorrect password');
+        User.findById(username, (err, user) => {
+            if(!user){
+                return done(err, false, 'Incorrect username');
             }
-        } catch(err) {
-            return done(err);
-        }
+            try{
+                let hashedword = getHash(password, user.salt);
+                if(hashedword === user.password){
+                    return done(err, user);
+                } else {
+                    return done(err, false, 'Incorrect password');
+                }
+            } catch(error) {
+                return done(error);
+            }
+        });
     };
     passport.use(new LocalStrategy(authenticateUser));
     passport.serializeUser((user, done) => done(null, user._id));
-    passport.deserializeUser((id, done) => done(null, getUser(id)));
+    passport.deserializeUser((id, done) => {
+        User.findById(id, (err, user) => {
+            done(err, user);
+        });
+    });
 };
 
 module.exports = initialize;
