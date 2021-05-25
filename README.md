@@ -18,13 +18,13 @@ This is a image sharing platform that I'm building using javascript during my fr
   - Sign into an existing account
   - View posts but not be able to interact with them
 ### Signed in users should currently be able to:
-  - Add a photo with a URL
-  - Add comments to any posts 
+  - Post a photo with a URL
+  - Post comments to any posts 
   - Delete comments and posts only if they posted them
 ## What I plan to implement / improve / complete in the future
 ### In the near future I plan to implement / complete implementation of:
   - User pages
-  - Ability for users to add followers and restrict who can see certain posts
+  - Ability for users to add followers and restrict who can see, like and comment certain posts
   - Ability for users to follow other accounts
   - Ability for users to like posts they can view
 ### In the farther future I plan to implement / complete implementation of:
