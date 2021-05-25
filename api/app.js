@@ -129,8 +129,10 @@ app.get('/signout', isNotAuthenticated, (req, res) => {
 
 const commentsRouter = require('./routes/comments');
 const postsRouter = require('./routes/posts');
+const usersRouter = require('./routes/users');
 app.use('/comments', commentsRouter);
 app.use('/posts', postsRouter);
+app.use('/users', usersRouter);
 
 //connect to mongodb 
 mongoose.connect(process.env.DB_URL, {useNewUrlParser: true, useFindAndModify: false, useUnifiedTopology: true}, () => {

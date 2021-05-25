@@ -34,12 +34,10 @@ router.delete('/:commentId', isAuthenticated, (req, res) => {
     if (err) return res.status(500).end("Error occurred while deleting comment");
     if(!comment) return res.status(400).end("Could not find comment to delete");
     if (comment.authour != req.user._id) return res.status(401).end("Access denied: Comments can only be deleted by user who posted it");
-  });
-  Comment.findByIdAndDelete(req.params.commentId, (err, comment) => {
-    if (err) return res.status(500).end("Error occurred while deleting comment");
-    if(!comment) return res.status(400).end("Could not find comment to delete");
-    if (comment.authour != req.user._id) return res.status(401).end("Access denied: Comments can only be deleted by user who posted it");
-    return res.json("Comment successfully deleted");
+    Comment.findByIdAndDelete(comment._id, (err, deletedComment) => {
+      if (err) return res.status(500).end("Error occurred while deleting comment");
+      return res.json("Comment successfully deleted");
+    });
   });
 });
 
@@ -48,7 +46,7 @@ router.get('/:postId', isAuthenticated, (req, res) => {
   Comment.find({post: req.params.postId}, (err, comments) => {
     if (err) return res.status(500).end("Error occurred while retrieving comments");
     return res.json(comments);
-  }).sort({date: -1});
+  }).sort({date: -1}).limit(10);
 });
 
 module.exports = router;
