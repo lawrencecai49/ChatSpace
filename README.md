@@ -5,7 +5,7 @@ This is a image sharing platform that I'm building using javascript during my fr
 ### Frontend
   - React
   - Material-UI
-### BackEnd
+### Backend
   - Node.js
   - Express
   - Passport.js (for login)
