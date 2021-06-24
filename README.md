@@ -14,8 +14,8 @@ This is a image sharing platform that I'm building using javascript during my fr
   - MongoDB
 ## What I currently have implemented
 ### Users not signed in should currently be able to:
-  - Sign Up for an account
-  - Sign into an existing account
+  - Sign Up for an account 
+  - Sign into an existing account (User authentication)
   - View posts but not be able to interact with them
 ### Signed in users should currently be able to:
   - Post a photo with a URL
@@ -23,6 +23,7 @@ This is a image sharing platform that I'm building using javascript during my fr
   - Delete comments and posts only if they posted them
 ## What I plan to implement / improve / complete in the future
 ### In the near future I plan to implement / complete implementation of:
+  - Security (redesign my server side code so it uses HTTPS protocol to ensure encryted and secure connection with my database)
   - User pages
   - Ability for users to add followers and restrict who can see, like and comment certain posts
   - Ability for users to follow other accounts
