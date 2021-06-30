@@ -3,9 +3,10 @@ const express = require('express');
 const router = express.Router();
 const Post = require('../models/post');
 const Comment = require('../models/comment');
+const { query } = require('express');
 
 const isAuthenticated = (req, res, next) => {
-  if (!req.isAuthenticated()) return res.status(401).end("access denied");
+  if (!req.user || req.user === "") return res.status(401).end("access denied");
   next();
 };
 
@@ -42,16 +43,10 @@ router.delete('/:postId', isAuthenticated, (req, res) => {
 
 //get all posts
 router.get('/', (req, res) => {
-  Post.find({}, (err, posts) => {
-    if (err) return res.status(500).end("Error occured when retrieving posts");
-    return res.json(posts);
-  }).sort({date: -1}).limit(10);
-});
-
-//get posts for a specific user
-router.get('/:user', (req, res) => {
-  Post.find({authour: req.params.user}, (err, posts) => {
-    if (err) return res.status(500).end("Error occured when retrieving posts");
+  let query = {};
+  if (req.query.userId) query.author= req.query.userId;
+  Post.find(query, (err, posts) => {
+    if (err) return res.status(500).send({success: false, message: "Error occured when retrieving posts"});
     return res.json(posts);
   }).sort({date: -1}).limit(10);
 });

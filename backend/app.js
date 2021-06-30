@@ -7,9 +7,7 @@ const path = require('path');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
-const multer  = require('multer');
 const cookie = require('cookie');
-const passport = require('passport');
 const validator = require('validator');
 const User = require('./models/user');
 const crypto = require('crypto');
@@ -32,16 +30,11 @@ app.use(session({
   cookie: {maxAge: 60 * 60 * 24 * 7}
 }));
 
-app.use(passport.initialize());
-app.use(passport.session());
-const initializePassport = require('./passport-config');
-initializePassport(passport);
-
 app.use(function(req, res, next){
   let username = (req.user)? req.user._id : '';
   res.setHeader('Set-Cookie', cookie.serialize('username', username, {
     path : '/', 
-    maxAge: 60 * 60 * 24 * 7 // 1 week in number of seconds
+    maxAge: 60 * 60 * 24 * 7
   }));
   next();
 });
@@ -67,29 +60,29 @@ const getHash = (password, salt) => {
 };
 
 const isNotAuthenticated = (req, res, next) => {
-  if (!req.isAuthenticated()) return res.status(401).end("access denied");
+  if (req.user && req.user != "") return res.status(401).end({success: false, message: "Access denied: Authenticated user"});
   next();
 };
 
 const isAuthenticated = (req, res, next) => {
-  if (req.isAuthenticated()) return res.status(401).end("access denied");
+  if (!req.user || req.user === "") return res.status(401).end("access denied");
   next();
 };
 
 const checkSignInInfo = (req, res, next) => {
-  if (!validator.isAlphanumeric(req.body.username)) return res.status(422).send("bad input: username must be alphanumeric");
-  if (validator.isEmpty(req.body.username)) return res.status(423).send("bad input: username must be non-empty");
-  if (validator.isEmpty(req.body.password)) return res.status(424).send("bad input: password must be non-empty");
+  if (!validator.isAlphanumeric(req.body.username)) return res.status(422).send({success: false, message: "bad input: username must be alphanumeric"});
+  if (validator.isEmpty(req.body.username)) return res.status(423).send({success: false, message:"bad input: username must be non-empty"});
+  if (validator.isEmpty(req.body.password)) return res.status(424).send({success: false, message:"bad input: password must be non-empty"});
+  User.findOne({_id: username}, (err, user) => {
+    if (err) return res.status(500).send({success: false, message: err.toString()});
+    if (user) return res.status(409).send({success: false, message:username + " is already taken"});
+  });
   next();
 };
 
 //sign up
 app.post('/signup', isAuthenticated, checkSignInInfo,  async(req, res) => {
   const username = req.body.username;
-  User.findOne({_id: username}, (err, user) => {
-    if (err) return res.status(500).send("500");
-    if (user) return res.status(409).send(username + " is already taken");
-  });
   var salt = crypto.randomBytes(16).toString('base64');
   var hashword = getHash(req.body.password, salt);
   if (!hashword) return res.status(500).send("Failed to hash password");
@@ -109,17 +102,21 @@ app.post('/signup', isAuthenticated, checkSignInInfo,  async(req, res) => {
 });
 
 //signin
-app.post('/signin', isAuthenticated ,checkSignInInfo, passport.authenticate('local'), (req, res) => {
-  res.setHeader('Set-Cookie', cookie.serialize('username', req.user._id, {
-    path : '/', 
-    maxAge: 60 * 60 * 24 * 7 // 1 week in number of seconds
-  }));
-  return res.json(true);
+app.post('/signin', isAuthenticated ,checkSignInInfo, (req, res) => {
+  User.findById(req.body.username, (err, user) => {
+    if (err) return res.status(500).send({success: false, message: "Server side error"});
+    if (!user) return res.status(404).send({success: false, message: "User not found"});
+    
+    res.setHeader('Set-Cookie', cookie.serialize('username', req.user._id, {
+      path : '/', 
+      maxAge: 60 * 60 * 24 * 7 // 1 week in number of seconds
+    }));
+    return res.json({success: true});
+  });
 });
 
 //signout
 app.get('/signout', isNotAuthenticated, (req, res) => {
-  req.logout();
   res.setHeader('Set-Cookie', cookie.serialize('username', '', {
     path : '/', 
     maxAge: 60 * 60 * 24 * 7 // 1 week in number of seconds

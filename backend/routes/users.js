@@ -4,7 +4,7 @@ const router = express.Router();
 const User = require('../models/user');
 
 const isAuthenticated = (req, res, next) => {
-  if (!req.isAuthenticated()) return res.status(401).end("access denied");
+  if (!req.user || req.user === "") return res.status(401).end("access denied");
   next();
 };
 
@@ -12,15 +12,16 @@ const isAuthenticated = (req, res, next) => {
 router.get('/:user', isAuthenticated, (req, res) => {
   if(req.params,user !== req.user._id) return res.status(401).end("Access denied");
   User.findById(req.params.user, (err, user) => {
-    if (err) return res.status(500).end("Error occurred while retrieving followers");
+    if (err) return res.status(500).send({success: false, message: "Error occurred while retrieving followers"});
     return res.json({followers: user.followers, following: user.following});
   });
 });
 
 //returns a list of usernames
 router.get('/', (req, res) => {
-  User.find({}, (err, users) => {
-    if (err) return res.status(500).end("Error occurred while retrieving comments");
+  let query = {};
+  User.find(query, (err, users) => {
+    if (err) return res.status(500).send({success: false, message:"Error occurred while retrieving comments"});
     let usernames = [];
     users.map(user => {
         usernames.push(user._id);
